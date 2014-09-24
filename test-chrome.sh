@@ -23,7 +23,12 @@ export D=$(mktemp -d)
 # prefill localstorage
 LOCALSTORAGE_DIR="${D}/Default/Local Storage/"
 mkdir -p "${LOCALSTORAGE_DIR}"
-cp data/chrome-localstorage-template "${LOCALSTORAGE_DIR}/https_${HOST}_0.localstorage"
+sqlite3 "${LOCALSTORAGE_DIR}/https_${HOST}_0.localstorage" << EOF
+    CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL);
+    INSERT INTO ItemTable (key, value) VALUES ("debug", "true");
+    INSERT INTO ItemTable (key, value) VALUES ("skipHaircheck", "true");
+EOF
+
 
 CHROME_LOG_FILE="${D}/chrome_debug.log"
 touch $CHROME_LOG_FILE
