@@ -18,7 +18,6 @@ function chrome_pids() {
 
 cd $(dirname $0)
 export D=$(mktemp -d)
-#"https_${HOST}_0.localstorage"
 
 # prefill localstorage
 LOCALSTORAGE_DIR="${D}/Default/Local Storage/"
