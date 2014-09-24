@@ -10,13 +10,15 @@ HOST=$1
 ROOM=$2
 URL=https://${HOST}/${ROOM}
 
-D=`mozprofile --pref="media.navigator.permission.disabled:true"`
+D=`mozprofile --pref="media.navigator.permission.disabled:true" --pref="browser.dom.window.dump.enabled:true"`
+echo $D
 
 # prefill localstorage
 REVERSEHOST=`echo ${HOST} | rev` 
 sqlite3 "${D}/webappsstore.sqlite" << EOF
     CREATE TABLE webappsstore2 (scope TEXT, key TEXT, value TEXT, secure INTEGER, owner TEXT);
     CREATE UNIQUE INDEX scope_key_index ON webappsstore2(scope, key);
+    INSERT INTO webappsstore2 (scope, key, value) VALUES ("${REVERSEHOST}.:https:443", "debug", "true");
     INSERT INTO webappsstore2 (scope, key, value) VALUES ("${REVERSEHOST}.:https:443", "skipHaircheck", "true");
     INSERT INTO webappsstore2 (scope, key, value) VALUES ("${REVERSEHOST}.:https:443", "useFirefoxFakeDevice", "true");
 EOF
