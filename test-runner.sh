@@ -15,7 +15,7 @@ pidwatcher=$!
 pidwatch=$!
  
 # browser #2
-( ./test-chrome.sh $HOST "${ROOM}" "${COND}" >> log2.log 2>&1 ; kill $pidwatcher ) &
+( ./test-firefox.sh $HOST "${ROOM}" "${COND}" >> log2.log 2>&1 ; kill $pidwatcher ) &
 pidwatch2=$!
  
 # now give them some time to connect
