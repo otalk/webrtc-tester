@@ -5,9 +5,10 @@
 # Copyright (c) 2014, The WebRTC project authors. All rights reserved.
 # see https://github.com/GoogleChrome/webrtc/blob/master/LICENSE
 
-#DISPLAY=
+DISPLAY=
 HOST=$1
 ROOM=$2
+COND=$3
 URL=https://${HOST}/${ROOM}
 
 D=`mozprofile --pref="media.navigator.permission.disabled:true" --pref="browser.dom.window.dump.enabled:true"`
@@ -40,7 +41,7 @@ BROWSER="mozrunner -p ${D} --binary firefox --app-arg=${URL}"
 eval $XVFB $BROWSER > $LOG_FILE 2>&1 &
 PID=$!
 
-while ! grep -q "P2P connected" $LOG_FILE ; do #&& chrome_pids|grep -q .; do
+while ! grep -q "${COND}" $LOG_FILE ; do #&& chrome_pids|grep -q .; do
   sleep 0.1
 done
 # wait for the peer to notice
@@ -55,9 +56,9 @@ done
 exec 2>&3
 exec 3>&-
 
-DONE=$(grep "P2P connected" $LOG_FILE)
+DONE=$(grep "${COND}" $LOG_FILE)
 EXIT_CODE=0
-if ! grep -q "P2P connected" $LOG_FILE; then
+if ! grep -q "${COND}" $LOG_FILE; then
   cat $LOG_FILE
   EXIT_CODE=1
 fi
