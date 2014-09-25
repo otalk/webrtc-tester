@@ -30,10 +30,10 @@ sqlite3 "${LOCALSTORAGE_DIR}/https_${HOST}_0.localstorage" << EOF
 EOF
 
 
-CHROME_LOG_FILE="${D}/chrome_debug.log"
-touch $CHROME_LOG_FILE
+LOG_FILE="${D}/chrome_debug.log"
+touch $LOG_FILE
 
-XVFB="xvfb-run -a -e $CHROME_LOG_FILE -s '-screen 0 1024x768x24'"
+XVFB="xvfb-run -a -e $LOG_FILE -s '-screen 0 1024x768x24'"
 if [ -n "$DISPLAY" ]; then
   XVFB=""
 fi
@@ -45,11 +45,10 @@ eval $XVFB $CHROME \
   --user-data-dir=$D \
   ${CHROME_ARGS} \
   --vmodule="*media/*=3,*turn*=3" \
-  "${URL}" > $CHROME_LOG_FILE 2>&1 &
+  "${URL}" > $LOG_FILE 2>&1 &
 CHROME_PID=$!
-#  --disable-web-security \
 
-while ! grep -q "${COND}" $CHROME_LOG_FILE && chrome_pids|grep -q .; do
+while ! grep -q "${COND}" $LOG_FILE && chrome_pids|grep -q .; do
   sleep 0.1
 done
 # wait for the peer to notice
@@ -64,10 +63,10 @@ done
 exec 2>&3
 exec 3>&-
 
-DONE=$(grep "${COND}" $CHROME_LOG_FILE)
+DONE=$(grep "${COND}" $LOG_FILE)
 EXIT_CODE=0
-if ! grep -q "${COND}" $CHROME_LOG_FILE; then
-  cat $CHROME_LOG_FILE
+if ! grep -q "${COND}" $LOG_FILE; then
+  cat $LOG_FILE
   EXIT_CODE=1
 fi
 
