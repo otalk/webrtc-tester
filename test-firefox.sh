@@ -13,6 +13,10 @@ URL=https://${HOST}/${ROOM}
 D=`mozprofile --pref="media.navigator.permission.disabled:true" --pref="browser.dom.window.dump.enabled:true"`
 echo $D
 
+function firefox_pids() {
+    ps axuwww|grep $D|grep firefox|awk '{print $2}'
+}
+
 # prefill localstorage
 REVERSEHOST=`echo ${HOST} | rev` 
 sqlite3 "${D}/webappsstore.sqlite" << EOF
@@ -34,7 +38,29 @@ BROWSER="mozrunner -p ${D} --binary firefox --app-arg=${URL}"
 
 # "eval" below is required by $XVFB containing a quoted argument.
 eval $XVFB $BROWSER > $LOG_FILE 2>&1 &
-
 PID=$!
-echo "PID: ${PID}"
-exit 0
+
+while ! grep -q "P2P connected" $LOG_FILE ; do #&& chrome_pids|grep -q .; do
+  sleep 0.1
+done
+# wait for the peer to notice
+sleep 5
+
+# Suppress bash's Killed message for the chrome above.
+exec 3>&2
+exec 2>/dev/null
+while [ ! -z "$(firefox_pids)" ]; do
+  kill -9 $(firefox_pids)
+done
+exec 2>&3
+exec 3>&-
+
+DONE=$(grep "P2P connected" $LOG_FILE)
+EXIT_CODE=0
+if ! grep -q "P2P connected" $LOG_FILE; then
+  cat $LOG_FILE
+  EXIT_CODE=1
+fi
+
+rm -rf $D
+exit $EXIT_CODE
