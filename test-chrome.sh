@@ -23,6 +23,7 @@ export D=$(mktemp -d)
 LOCALSTORAGE_DIR="${D}/Default/Local Storage/"
 mkdir -p "${LOCALSTORAGE_DIR}"
 sqlite3 "${LOCALSTORAGE_DIR}/https_${HOST}_0.localstorage" << EOF
+    PRAGMA encoding = "UTF-16";
     CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB NOT NULL ON CONFLICT FAIL);
     INSERT INTO ItemTable (key, value) VALUES ("debug", "true");
     INSERT INTO ItemTable (key, value) VALUES ("skipHaircheck", "true");
