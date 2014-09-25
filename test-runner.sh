@@ -6,27 +6,27 @@ ROOM="automattedtesting_${RANDOM}"
 COND="P2P connected" # talky
 #COND="data channel open" # talky pro
 
-
-# chrome #1
-( ./test-chrome.sh $HOST "${ROOM}" "${COND}" >> log1.log 2>&1 ) &
-pidwatch=$!
-
-# chrome #2
-( ./test-chrome.sh $HOST "${ROOM}" "${COND}" >> log2.log 2>&1 ) &
-pidwatch2=$!
-
-# now give them some time to connect
-
 # this timeout is for the overall test process
-( sleep ${TIMEOUT} ; kill $pidwatch > /dev/null 2>&1 ; kill $pidwatch2 > /dev/null 2>&1 ; echo "timedout" ) &
+( sleep ${TIMEOUT} ) &
 pidwatcher=$!
-
-echo "${pidwatch} ${pidwatch2} ${pidwatcher}"
-
-if wait $pidwatch2 ; then
-  echo "--- finished" #                 | tee -a ~/test_run.log
+ 
+# browser #1
+( ./test-chrome.sh $HOST "${ROOM}" "${COND}" >> log1.log 2>&1 ; kill $pidwatcher ) &
+pidwatch=$!
+ 
+# browser #2
+( ./test-chrome.sh $HOST "${ROOM}" "${COND}" >> log2.log 2>&1 ; kill $pidwatcher ) &
+pidwatch2=$!
+ 
+# now give them some time to connect
+ 
+echo "${pidwatcher} watching ${pidwatch} ${pidwatch2}"
+ 
+if wait $pidwatcher ; then
+  echo "--- timedout"
 else
-  echo "--- stopped" #                  | tee -a ~/test_run.log
+  echo "--- finished"
 fi
-
-pkill -HUP -P $pidwatcher
+ 
+pkill -HUP -P $pidwatch
+pkill -HUP -P $pidwatch2
