@@ -10,6 +10,7 @@ CHROME="google-chrome"
 CHROME_ARGS="--use-fake-ui-for-media-stream --use-fake-device-for-media-stream"
 HOST=$1
 ROOM=$2
+COND=$3
 URL=https://${HOST}/${ROOM}
 
 function chrome_pids() {
@@ -49,7 +50,7 @@ eval $XVFB $CHROME \
 CHROME_PID=$!
 #  --disable-web-security \
 
-while ! grep -q "P2P connected" $CHROME_LOG_FILE && chrome_pids|grep -q .; do
+while ! grep -q "${COND}" $CHROME_LOG_FILE && chrome_pids|grep -q .; do
   sleep 0.1
 done
 # wait for the peer to notice
@@ -64,9 +65,9 @@ done
 exec 2>&3
 exec 3>&-
 
-DONE=$(grep "P2P connected" $CHROME_LOG_FILE)
+DONE=$(grep "${COND}" $CHROME_LOG_FILE)
 EXIT_CODE=0
-if ! grep -q "P2P connected" $CHROME_LOG_FILE; then
+if ! grep -q "${COND}" $CHROME_LOG_FILE; then
   cat $CHROME_LOG_FILE
   EXIT_CODE=1
 fi

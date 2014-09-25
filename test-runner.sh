@@ -2,14 +2,16 @@
 TIMEOUT="60"
 HOST="beta.talky.io"
 ROOM="automattedtesting_${RANDOM}"
+COND="P2P connected" # talky
+#COND="data channel open" # talky pro
 
 
 # chrome #1
-( ./test-chrome.sh $HOST "${ROOM}" >> log1.log 2>&1 ) &
+( ./test-chrome.sh $HOST "${ROOM}" "${COND}" >> log1.log 2>&1 ) &
 pidwatch=$!
 
 # chrome #2
-( ./test-chrome.sh $HOST "${ROOM}" >> log2.log 2>&1 ) &
+( ./test-chrome.sh $HOST "${ROOM}" "${COND}" >> log2.log 2>&1 ) &
 pidwatch2=$!
 
 # now give them some time to connect
