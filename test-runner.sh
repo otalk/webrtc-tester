@@ -1,5 +1,6 @@
 #!/bin/bash
 TIMEOUT="60"
+DISPLAY=
 HOST="beta.talky.io"
 ROOM="automattedtesting_${RANDOM}"
 COND="P2P connected" # talky

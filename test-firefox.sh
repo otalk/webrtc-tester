@@ -5,7 +5,6 @@
 # Copyright (c) 2014, The WebRTC project authors. All rights reserved.
 # see https://github.com/GoogleChrome/webrtc/blob/master/LICENSE
 
-DISPLAY=
 HOST=$1
 ROOM=$2
 COND=$3

@@ -5,7 +5,6 @@
 # Copyright (c) 2014, The WebRTC project authors. All rights reserved.
 # see https://github.com/GoogleChrome/webrtc/blob/master/LICENSE
 
-DISPLAY=
 CHROME="google-chrome"
 CHROME_ARGS="--use-fake-ui-for-media-stream --use-fake-device-for-media-stream"
 HOST=$1
