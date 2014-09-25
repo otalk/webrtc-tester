@@ -40,13 +40,13 @@ BROWSER="mozrunner -p ${D} --binary firefox --app-arg=${URL}"
 eval $XVFB $BROWSER > $LOG_FILE 2>&1 &
 PID=$!
 
-while ! grep -q "${COND}" $LOG_FILE ; do #&& chrome_pids|grep -q .; do
+while ! grep -q "${COND}" $LOG_FILE && firefox_pids|grep -q .; do
   sleep 0.1
 done
 # wait for the peer to notice
 sleep 5
 
-# Suppress bash's Killed message for the chrome above.
+# Suppress bash's Killed message for the firefox above.
 exec 3>&2
 exec 2>/dev/null
 while [ ! -z "$(firefox_pids)" ]; do
