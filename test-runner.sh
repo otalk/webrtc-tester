@@ -31,3 +31,9 @@ fi
  
 pkill -HUP -P $pidwatch
 pkill -HUP -P $pidwatch2
+function xvfb_pids() {
+  ps x -o "%p %r %c" | grep Xvfb | grep $$ | awk '{print $1}'
+}
+while [ ! -z "$(xvfb_pids)" ]; do
+  kill -9 $(xvfb_pids)
+done
