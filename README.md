@@ -6,9 +6,9 @@ WebRTC Deployment Testing Toolkit
 #Required software
 * xvfb
 * sqlite3
-* firefox:
 * pip
-* mozrunner (via pip/easy\_install)
+* firefox
+  * mozrunner (via pip/easy\_install)
 
 #Recommended reading
 Google has published two excellent blog posts on automatted interop testing between 
