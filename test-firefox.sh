@@ -11,11 +11,22 @@ COND=$3
 URL=https://${HOST}/${ROOM}
 
 D=`mozprofile --pref="media.navigator.permission.disabled:true" --pref="browser.dom.window.dump.enabled:true"`
-echo $D
 
 function firefox_pids() {
     ps axuwww|grep $D|grep firefox|awk '{print $2}'
 }
+function cleanup() {
+  # Suppress bash's Killed message for the firefox above.
+  exec 3>&2
+  exec 2>/dev/null
+  while [ ! -z "$(firefox_pids)" ]; do
+    kill -9 $(firefox_pids)
+  done
+  exec 2>&3
+  exec 3>&-
+  rm -rf $D
+}
+trap cleanup EXIT
 
 # prefill localstorage
 REVERSEHOST=`echo ${HOST} | rev` 
@@ -46,15 +57,6 @@ done
 # wait for the peer to notice
 sleep 5
 
-# Suppress bash's Killed message for the firefox above.
-exec 3>&2
-exec 2>/dev/null
-while [ ! -z "$(firefox_pids)" ]; do
-  kill -9 $(firefox_pids)
-done
-exec 2>&3
-exec 3>&-
-
 DONE=$(grep "${COND}" $LOG_FILE)
 EXIT_CODE=0
 if ! grep -q "${COND}" $LOG_FILE; then
@@ -62,5 +64,4 @@ if ! grep -q "${COND}" $LOG_FILE; then
   EXIT_CODE=1
 fi
 
-rm -rf $D
 exit $EXIT_CODE

@@ -20,7 +20,6 @@ function chrome_pids() {
 }
 
 function cleanup() {
-  echo "cleaning up..."
   # Suppress bash's Killed message for the chrome above.
   exec 3>&2
   exec 2>/dev/null
@@ -61,7 +60,7 @@ eval $XVFB $CHROME \
   ${CHROME_ARGS} \
   --vmodule="*media/*=3,*turn*=3" \
   "${URL}" > $LOG_FILE 2>&1 &
-CHROME_PID=$!
+PID=$!
 
 while ! grep -q "${COND}" $LOG_FILE && chrome_pids|grep -q .; do
   sleep 0.1
