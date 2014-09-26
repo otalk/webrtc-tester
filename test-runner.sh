@@ -9,6 +9,16 @@ COND="P2P connected" # talky
 #COND="onCallActive" # go
 #COND="Data channel opened" # meet
 
+# make sure we kill any Xvfb instances
+function cleanup() {
+  function xvfb_pids() {
+    ps x -o "%p %r %c" | grep Xvfb | grep $$ | awk '{print $1}'
+  }
+  while [ ! -z "$(xvfb_pids)" ]; do
+    kill $(xvfb_pids)
+  done
+}
+trap cleanup EXIT
 # this timeout is for the overall test process
 ( sleep ${TIMEOUT} ) &
 pidwatcher=$!
@@ -31,9 +41,3 @@ fi
  
 pkill -HUP -P $pidwatch
 pkill -HUP -P $pidwatch2
-function xvfb_pids() {
-  ps x -o "%p %r %c" | grep Xvfb | grep $$ | awk '{print $1}'
-}
-while [ ! -z "$(xvfb_pids)" ]; do
-  kill -9 $(xvfb_pids)
-done
