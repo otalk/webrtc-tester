@@ -12,12 +12,27 @@ ROOM=$2
 COND=$3
 URL=https://${HOST}/${ROOM}
 
+cd $(dirname $0)
+D=$(mktemp -d)
+
 function chrome_pids() {
   ps axuwww|grep $D|grep c[h]rome|awk '{print $2}'
 }
 
-cd $(dirname $0)
-export D=$(mktemp -d)
+function cleanup() {
+  echo "cleaning up..."
+  # Suppress bash's Killed message for the chrome above.
+  exec 3>&2
+  exec 2>/dev/null
+  while [ ! -z "$(chrome_pids)" ]; do
+    kill -9 $(chrome_pids)
+  done
+  exec 2>&3
+  exec 3>&-
+
+  rm -rf $D
+}
+trap cleanup EXIT
 
 # prefill localstorage
 LOCALSTORAGE_DIR="${D}/Default/Local Storage/"
@@ -54,15 +69,6 @@ done
 # wait for the peer to notice
 sleep 5
 
-# Suppress bash's Killed message for the chrome above.
-exec 3>&2
-exec 2>/dev/null
-while [ ! -z "$(chrome_pids)" ]; do
-  kill -9 $(chrome_pids)
-done
-exec 2>&3
-exec 3>&-
-
 DONE=$(grep "${COND}" $LOG_FILE)
 EXIT_CODE=0
 if ! grep -q "${COND}" $LOG_FILE; then
@@ -70,5 +76,4 @@ if ! grep -q "${COND}" $LOG_FILE; then
   EXIT_CODE=1
 fi
 
-rm -rf $D
 exit $EXIT_CODE
