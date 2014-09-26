@@ -2,30 +2,31 @@
 TIMEOUT="60"
 DISPLAY=
 HOST="beta.talky.io"
-ROOM="automattedtesting_${RANDOM}"
+ROOM="automatedtesting_${RANDOM}"
 COND="P2P connected" # talky
 #COND="data channel open" # talky pro
+#COND="ICE connection state changed to: connected" # apprtc
+#COND="onCallActive" # go
+#COND="Data channel opened" # meet
 
 # this timeout is for the overall test process
 ( sleep ${TIMEOUT} ) &
 pidwatcher=$!
  
 # browser #1
-( ./test-chrome.sh $HOST "${ROOM}" "${COND}" >> log1.log 2>&1 ; kill $pidwatcher ) &
+( ./test-chrome.sh $HOST "${ROOM}" "${COND}" >> log1.log 2>&1 ; kill $pidwatcher 2> /dev/null ) 2>/dev/null &
 pidwatch=$!
  
 # browser #2
-( ./test-firefox.sh $HOST "${ROOM}" "${COND}" >> log2.log 2>&1 ; kill $pidwatcher ) &
+( ./test-firefox.sh $HOST "${ROOM}" "${COND}" >> log2.log 2>&1 ; kill $pidwatcher 2> /dev/null ) 2>/dev/null &
 pidwatch2=$!
- 
-# now give them some time to connect
  
 echo "${pidwatcher} watching ${pidwatch} ${pidwatch2}"
  
-if wait $pidwatcher ; then
+if wait $pidwatcher 2>/dev/null; then
   echo "--- timedout"
 else
-  echo "--- finished"
+  echo "--- success"
 fi
  
 pkill -HUP -P $pidwatch
