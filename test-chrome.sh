@@ -14,7 +14,14 @@ COND=$3
 URL=https://${HOST}/${ROOM}
 
 function browser_pids() {
-  ps axuwww|grep $D|grep c[h]rome|awk '{print $2}'
+  case "$BROWSER" in
+  "google-chrome")
+    ps axuwww|grep $D|grep c[h]rome|awk '{print $2}'
+    ;;
+  "firefox")
+    ps axuwww|grep $D|grep ${BROWSER}|awk '{print $2}'
+    ;;
+  esac
 }
 
 function cleanup() {
@@ -32,8 +39,15 @@ function cleanup() {
 trap cleanup EXIT
 
 # make a new profile
-cd $(dirname $0)
-D=$(mktemp -d)
+case "$BROWSER" in
+  "google-chrome")
+    cd $(dirname $0)
+    D=$(mktemp -d)
+    ;;
+  "firefox")
+    D=`mozprofile --pref="media.navigator.permission.disabled:true" --pref="browser.dom.window.dump.enabled:true"`
+    ;;
+esac
 
 # prefill localstorage
 LOCALSTORAGE_DIR="${D}/Default/Local Storage/"

@@ -15,8 +15,16 @@ URL=https://${HOST}/${ROOM}
 
 
 function browser_pids() {
-    ps axuwww|grep $D|grep firefox|awk '{print $2}'
+  case "$BROWSER" in
+  "google-chrome")
+    ps axuwww|grep $D|grep c[h]rome|awk '{print $2}'
+    ;;
+  "firefox")
+    ps axuwww|grep $D|grep ${BROWSER}|awk '{print $2}'
+    ;;
+  esac
 }
+
 function cleanup() {
   # Suppress bash's Killed message for the firefox above.
   exec 3>&2
@@ -31,7 +39,15 @@ function cleanup() {
 trap cleanup EXIT
 
 # make a new profile
-D=`mozprofile --pref="media.navigator.permission.disabled:true" --pref="browser.dom.window.dump.enabled:true"`
+case "$BROWSER" in
+  "google-chrome")
+    cd $(dirname $0)
+    D=$(mktemp -d)
+    ;;
+  "firefox")
+    D=`mozprofile --pref="media.navigator.permission.disabled:true" --pref="browser.dom.window.dump.enabled:true"`
+    ;;
+esac
 
 # prefill localstorage
 REVERSEHOST=`echo ${HOST} | rev` 
