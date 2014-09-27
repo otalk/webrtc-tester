@@ -17,6 +17,8 @@ function cleanup() {
   while [ ! -z "$(xvfb_pids)" ]; do
     kill $(xvfb_pids)
   done
+  pkill -HUP -P $pidwatch
+  pkill -HUP -P $pidwatch2
 }
 trap cleanup EXIT
 # this timeout is for the overall test process
@@ -24,11 +26,11 @@ trap cleanup EXIT
 pidwatcher=$!
  
 # browser #1
-( ./test-chrome.sh $HOST "${ROOM}" "${COND}" >> log1.log 2>&1 ; kill $pidwatcher 2> /dev/null ) 2>/dev/null &
+( ./test-chrome.sh google-chrome $HOST "${ROOM}" "${COND}" >> log1.log 2>&1 ; kill $pidwatcher 2> /dev/null ) 2>/dev/null &
 pidwatch=$!
  
 # browser #2
-( ./test-firefox.sh $HOST "${ROOM}" "${COND}" >> log2.log 2>&1 ; kill $pidwatcher 2> /dev/null ) 2>/dev/null &
+( ./test-firefox.sh firefox $HOST "${ROOM}" "${COND}" >> log2.log 2>&1 ; kill $pidwatcher 2> /dev/null ) 2>/dev/null &
 pidwatch2=$!
  
 echo "${pidwatcher} watching ${pidwatch} ${pidwatch2}"
@@ -39,5 +41,3 @@ else
   echo "--- success"
 fi
  
-pkill -HUP -P $pidwatch
-pkill -HUP -P $pidwatch2

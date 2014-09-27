@@ -5,12 +5,11 @@
 # Copyright (c) 2014, The WebRTC project authors. All rights reserved.
 # see https://github.com/GoogleChrome/webrtc/blob/master/LICENSE
 
-BROWSER="google-chrome"
-
 # evaluate command line arguments
-HOST=$1
-ROOM=$2
-COND=$3
+BROWSER=$1
+HOST=$2
+ROOM=$3
+COND=$4
 URL=https://${HOST}/${ROOM}
 
 function browser_pids() {
@@ -32,7 +31,6 @@ function cleanup() {
   done
   exec 2>&3
   exec 3>&-
-
   rm -rf $D
 }
 trap cleanup EXIT
@@ -76,7 +74,6 @@ esac
 LOG_FILE="${D}/browser.log"
 touch $LOG_FILE
 
-
 # setup xvfb
 XVFB="xvfb-run -a -e $LOG_FILE -s '-screen 0 1024x768x24'"
 if [ -n "$DISPLAY" ]; then
@@ -85,17 +82,28 @@ fi
 
 # run xvfb
 # "eval" below is required by $XVFB containing a quoted argument.
-eval $XVFB $BROWSER \
-  --enable-logging=stderr \
-  --no-first-run \
-  --no-default-browser-check \
-  --disable-translate \
-  --user-data-dir=$D \
-  --use-fake-ui-for-media-stream \
-  --use-fake-device-for-media-stream \
-  --vmodule="*media/*=3,*turn*=3" \
-  "${URL}" > $LOG_FILE 2>&1 &
-PID=$!
+case "$BROWSER" in
+  "google-chrome")
+    eval $XVFB $BROWSER \
+      --enable-logging=stderr \
+      --no-first-run \
+      --no-default-browser-check \
+      --disable-translate \
+      --user-data-dir=$D \
+      --use-fake-ui-for-media-stream \
+      --use-fake-device-for-media-stream \
+      --vmodule="*media/*=3,*turn*=3" \
+      "${URL}" > $LOG_FILE 2>&1 &
+    PID=$!
+  ;;
+  "firefox")
+    eval $XVFB mozrunner \
+      -p ${D} \
+      --binary ${BROWSER} \
+      --app-arg=${URL} > $LOG_FILE 2>&1 &
+    PID=$!
+  ;;
+esac
 
 # wait for stop condition to appear in log
 while ! grep -q "${COND}" $LOG_FILE && browser_pids|grep -q .; do
