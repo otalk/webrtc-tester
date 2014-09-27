@@ -26,11 +26,11 @@ trap cleanup EXIT
 pidwatcher=$!
  
 # browser #1
-( ./test-chrome.sh google-chrome $HOST "${ROOM}" "${COND}" >> log1.log 2>&1 ; kill $pidwatcher 2> /dev/null ) 2>/dev/null &
+( ./test-browser.sh google-chrome $HOST "${ROOM}" "${COND}" >> log1.log 2>&1 ; kill $pidwatcher 2> /dev/null ) 2>/dev/null &
 pidwatch=$!
  
 # browser #2
-( ./test-firefox.sh firefox $HOST "${ROOM}" "${COND}" >> log2.log 2>&1 ; kill $pidwatcher 2> /dev/null ) 2>/dev/null &
+( ./test-browser.sh firefox $HOST "${ROOM}" "${COND}" >> log2.log 2>&1 ; kill $pidwatcher 2> /dev/null ) 2>/dev/null &
 pidwatch2=$!
  
 echo "${pidwatcher} watching ${pidwatch} ${pidwatch2}"
