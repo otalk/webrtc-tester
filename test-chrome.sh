@@ -5,17 +5,13 @@
 # Copyright (c) 2014, The WebRTC project authors. All rights reserved.
 # see https://github.com/GoogleChrome/webrtc/blob/master/LICENSE
 
-CHROME="google-chrome"
-CHROME_ARGS="--use-fake-ui-for-media-stream --use-fake-device-for-media-stream"
+BROWSER="google-chrome"
 HOST=$1
 ROOM=$2
 COND=$3
 URL=https://${HOST}/${ROOM}
 
-cd $(dirname $0)
-D=$(mktemp -d)
-
-function chrome_pids() {
+function browser_pids() {
   ps axuwww|grep $D|grep c[h]rome|awk '{print $2}'
 }
 
@@ -23,8 +19,8 @@ function cleanup() {
   # Suppress bash's Killed message for the chrome above.
   exec 3>&2
   exec 2>/dev/null
-  while [ ! -z "$(chrome_pids)" ]; do
-    kill -9 $(chrome_pids)
+  while [ ! -z "$(browser_pids)" ]; do
+    kill -9 $(browser_pids)
   done
   exec 2>&3
   exec 3>&-
@@ -32,6 +28,10 @@ function cleanup() {
   rm -rf $D
 }
 trap cleanup EXIT
+
+# make a new profile
+cd $(dirname $0)
+D=$(mktemp -d)
 
 # prefill localstorage
 LOCALSTORAGE_DIR="${D}/Default/Local Storage/"
@@ -43,31 +43,39 @@ sqlite3 "${LOCALSTORAGE_DIR}/https_${HOST}_0.localstorage" << EOF
     INSERT INTO ItemTable (key, value) VALUES ("skipHaircheck", "true");
 EOF
 
-
+# create log file
 LOG_FILE="${D}/chrome_debug.log"
 touch $LOG_FILE
 
+
+# setup xvfb
 XVFB="xvfb-run -a -e $LOG_FILE -s '-screen 0 1024x768x24'"
 if [ -n "$DISPLAY" ]; then
   XVFB=""
 fi
 
+BROWSER_ARGS="--use-fake-ui-for-media-stream --use-fake-device-for-media-stream"
+
+# run xvfb
 # "eval" below is required by $XVFB containing a quoted argument.
-eval $XVFB $CHROME \
+eval $XVFB $BROWSER \
   --enable-logging=stderr \
   --no-first-run \
   --user-data-dir=$D \
-  ${CHROME_ARGS} \
+  ${BROWSER_ARGS} \
   --vmodule="*media/*=3,*turn*=3" \
   "${URL}" > $LOG_FILE 2>&1 &
 PID=$!
 
-while ! grep -q "${COND}" $LOG_FILE && chrome_pids|grep -q .; do
+# wait for stop condition to appear in log
+while ! grep -q "${COND}" $LOG_FILE && browser_pids|grep -q .; do
   sleep 0.1
 done
-# wait for the peer to notice
+
+# give the peer a little time to notice
 sleep 5
 
+# evaluate whether we were successful
 DONE=$(grep "${COND}" $LOG_FILE)
 EXIT_CODE=0
 if ! grep -q "${COND}" $LOG_FILE; then
