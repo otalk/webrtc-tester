@@ -5,28 +5,33 @@
 # Copyright (c) 2014, The WebRTC project authors. All rights reserved.
 # see https://github.com/GoogleChrome/webrtc/blob/master/LICENSE
 
+BROWSER="firefox"
+
+# evaluate command line arguments
 HOST=$1
 ROOM=$2
 COND=$3
 URL=https://${HOST}/${ROOM}
 
-D=`mozprofile --pref="media.navigator.permission.disabled:true" --pref="browser.dom.window.dump.enabled:true"`
 
-function firefox_pids() {
+function browser_pids() {
     ps axuwww|grep $D|grep firefox|awk '{print $2}'
 }
 function cleanup() {
   # Suppress bash's Killed message for the firefox above.
   exec 3>&2
   exec 2>/dev/null
-  while [ ! -z "$(firefox_pids)" ]; do
-    kill -9 $(firefox_pids)
+  while [ ! -z "$(browser_pids)" ]; do
+    kill -9 $(browser_pids)
   done
   exec 2>&3
   exec 3>&-
   rm -rf $D
 }
 trap cleanup EXIT
+
+# make a new profile
+D=`mozprofile --pref="media.navigator.permission.disabled:true" --pref="browser.dom.window.dump.enabled:true"`
 
 # prefill localstorage
 REVERSEHOST=`echo ${HOST} | rev` 
@@ -38,25 +43,33 @@ sqlite3 "${D}/webappsstore.sqlite" << EOF
     INSERT INTO webappsstore2 (scope, key, value) VALUES ("${REVERSEHOST}.:https:443", "useFirefoxFakeDevice", "true");
 EOF
 
+# create log file
 LOG_FILE="${D}/firefox.log"
 touch $LOG_FILE
 
+# setup xvfb
 XVFB="xvfb-run -a -e $LOG_FILE -s '-screen 0 1024x768x24'"
 if [ -n "$DISPLAY" ]; then
   XVFB=""
 fi
-BROWSER="mozrunner -p ${D} --binary firefox --app-arg=${URL}"
 
+# run xvfb
 # "eval" below is required by $XVFB containing a quoted argument.
-eval $XVFB $BROWSER > $LOG_FILE 2>&1 &
+eval $XVFB mozrunner \
+    -p ${D} \
+    --binary ${BROWSER} \
+    --app-arg=${URL} > $LOG_FILE 2>&1 &
 PID=$!
 
-while ! grep -q "${COND}" $LOG_FILE && firefox_pids|grep -q .; do
+# wait for stop condition to appear in log
+while ! grep -q "${COND}" $LOG_FILE && browser_pids|grep -q .; do
   sleep 0.1
 done
-# wait for the peer to notice
+
+# give the peer a little time to notice
 sleep 5
 
+# evaluate whether we were successful
 DONE=$(grep "${COND}" $LOG_FILE)
 EXIT_CODE=0
 if ! grep -q "${COND}" $LOG_FILE; then

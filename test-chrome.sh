@@ -6,6 +6,8 @@
 # see https://github.com/GoogleChrome/webrtc/blob/master/LICENSE
 
 BROWSER="google-chrome"
+
+# evaluate command line arguments
 HOST=$1
 ROOM=$2
 COND=$3
@@ -61,6 +63,8 @@ BROWSER_ARGS="--use-fake-ui-for-media-stream --use-fake-device-for-media-stream"
 eval $XVFB $BROWSER \
   --enable-logging=stderr \
   --no-first-run \
+  --no-default-browser-check \
+  --disable-translate \
   --user-data-dir=$D \
   ${BROWSER_ARGS} \
   --vmodule="*media/*=3,*turn*=3" \
