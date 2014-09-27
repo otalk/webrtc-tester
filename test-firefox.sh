@@ -13,7 +13,6 @@ ROOM=$2
 COND=$3
 URL=https://${HOST}/${ROOM}
 
-
 function browser_pids() {
   case "$BROWSER" in
   "google-chrome")
@@ -26,7 +25,6 @@ function browser_pids() {
 }
 
 function cleanup() {
-  # Suppress bash's Killed message for the firefox above.
   exec 3>&2
   exec 2>/dev/null
   while [ ! -z "$(browser_pids)" ]; do
@@ -74,7 +72,7 @@ EOF
 esac
 
 # create log file
-LOG_FILE="${D}/firefox.log"
+LOG_FILE="${D}/browser.log"
 touch $LOG_FILE
 
 # setup xvfb

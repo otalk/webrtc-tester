@@ -25,7 +25,6 @@ function browser_pids() {
 }
 
 function cleanup() {
-  # Suppress bash's Killed message for the chrome above.
   exec 3>&2
   exec 2>/dev/null
   while [ ! -z "$(browser_pids)" ]; do
@@ -74,7 +73,7 @@ EOF
 esac
 
 # create log file
-LOG_FILE="${D}/chrome_debug.log"
+LOG_FILE="${D}/browser.log"
 touch $LOG_FILE
 
 
@@ -84,8 +83,6 @@ if [ -n "$DISPLAY" ]; then
   XVFB=""
 fi
 
-BROWSER_ARGS="--use-fake-ui-for-media-stream --use-fake-device-for-media-stream"
-
 # run xvfb
 # "eval" below is required by $XVFB containing a quoted argument.
 eval $XVFB $BROWSER \
@@ -94,7 +91,8 @@ eval $XVFB $BROWSER \
   --no-default-browser-check \
   --disable-translate \
   --user-data-dir=$D \
-  ${BROWSER_ARGS} \
+  --use-fake-ui-for-media-stream \
+  --use-fake-device-for-media-stream \
   --vmodule="*media/*=3,*turn*=3" \
   "${URL}" > $LOG_FILE 2>&1 &
 PID=$!
