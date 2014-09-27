@@ -14,8 +14,11 @@ URL=https://${HOST}/${ROOM}
 
 function browser_pids() {
   case "$BROWSER" in
-  "google-chrome")
+  "google-chrome" | "google-chrome-stable" | "google-chrome-beta" | "google-chrome-unstable")
     ps axuwww|grep $D|grep c[h]rome|awk '{print $2}'
+    ;;
+  "chromium-browser")
+    ps axuwww|grep $D|grep chromium-browser |awk '{print $2}'
     ;;
   "firefox")
     ps axuwww|grep $D|grep ${BROWSER}|awk '{print $2}'
@@ -37,7 +40,7 @@ trap cleanup EXIT
 
 # make a new profile
 case "$BROWSER" in
-  "google-chrome")
+  "google-chrome" | "google-chrome-stable" | "google-chrome-beta" | "google-chrome-unstable" | "chromium-browser")
     cd $(dirname $0)
     D=$(mktemp -d)
     ;;
@@ -48,7 +51,7 @@ esac
 
 # prefill localstorage
 case "$BROWSER" in
-  "google-chrome")
+  "google-chrome" | "google-chrome-stable" | "google-chrome-beta" | "google-chrome-unstable" | "chromium-browser")
     LOCALSTORAGE_DIR="${D}/Default/Local Storage/"
     mkdir -p "${LOCALSTORAGE_DIR}"
     sqlite3 "${LOCALSTORAGE_DIR}/https_${HOST}_0.localstorage" << EOF
@@ -83,7 +86,7 @@ fi
 # run xvfb
 # "eval" below is required by $XVFB containing a quoted argument.
 case "$BROWSER" in
-  "google-chrome")
+  "google-chrome" | "google-chrome-stable" | "google-chrome-beta" | "google-chrome-unstable" | "chromium-browser")
     eval $XVFB $BROWSER \
       --enable-logging=stderr \
       --no-first-run \
