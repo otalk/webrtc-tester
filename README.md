@@ -3,6 +3,8 @@ webrtc-tester
 
 WebRTC Deployment Testing Toolkit
 
+See [this blogpost](https://blog.andyet.com/2014/09/29/testing-webrtc-applications) about how we use this for testing [Talky](https://talky.io) deployments.
+
 #Required software
 * xvfb
 * sqlite3
