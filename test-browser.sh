@@ -18,10 +18,10 @@ function browser_pids() {
     ps axuwww|grep $D|grep c[h]rome|awk '{print $2}'
     ;;
   "chromium-browser")
-    ps axuwww|grep $D|grep chromium-browser |awk '{print $2}'
+    ps axuwww|grep $D|grep c[h]romium-browser|awk '{print $2}'
     ;;
   "firefox")
-    ps axuwww|grep $D|grep ${BROWSER}|awk '{print $2}'
+    ps axuwww|grep $D|grep f[i]refox|awk '{print $2}'
     ;;
   esac
 }

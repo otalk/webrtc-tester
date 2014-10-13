@@ -12,7 +12,7 @@ COND="P2P connected" # talky
 # make sure we kill any Xvfb instances
 function cleanup() {
   function xvfb_pids() {
-    ps x -o "%p %r %c" | grep Xvfb | grep $$ | awk '{print $1}'
+    ps x -o "%r %p %c" | grep X[v]fb | grep $$ | awk '{print $2}'
   }
   exec 3>&2
   exec 2>/dev/null
