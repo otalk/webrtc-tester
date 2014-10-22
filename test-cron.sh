@@ -12,14 +12,14 @@ if [ -z "$2" ]; then
 fi
 
 # Run test
-cd /opt/webrtc-tester/
+cd /opt/sbin/webrtc-tester/
 TEST=$(./test-runner.sh "$1" "$2")
 
 # A pass produces no output, so test for string for a test fail
 if [ -n "$TEST" ]; then
-  echo "[alert] $1: WEBRTC TEST FAIL" | tee /opt/webrtc-tester/test.log
-  echo "$TEST" | tee -a /opt/webrtc-tester/test.log
+  echo "[alert] $1: WEBRTC TEST FAIL" | tee /opt/sbin/webrtc-tester/test.log
+  echo "$TEST" | tee -a /opt/sbin/webrtc-tester/test.log
 
   # Send your alert
-  /opt/sbin/send-alert.sh /opt/webrtc-tester/test.log
+  /opt/sbin/send-alert.sh /opt/sbin/webrtc-tester/test.log
 fi
