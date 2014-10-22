@@ -10,7 +10,7 @@ See [this blogpost](https://blog.andyet.com/2014/09/29/testing-webrtc-applicatio
 * sqlite3
 * python-pip
 * google-chrome
-* chromium browser
+* chromium-browser
 * firefox
   * mozrunner (via pip/easy\_install)
 
