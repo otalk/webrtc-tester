@@ -14,10 +14,17 @@ function cleanup() {
   function xvfb_pids() {
     ps x -o "%r %p %c" | grep X[v]fb | grep $$ | awk '{print $2}'
   }
+  function xvfb_ppids() {
+    ps x -o "%r %p %c" | grep X[v]fb | grep $PPID | awk '{print $2}'
+  }
   exec 3>&2
   exec 2>/dev/null
   while [ ! -z "$(xvfb_pids)" ]; do
     kill $(xvfb_pids)
+  done
+  # account for other scripts running this
+  while [ ! -z "$(xvfb_ppids)" ]; do
+    kill $(xvfb_ppids)
   done
   pkill -HUP -P $pidwatch
   pkill -HUP -P $pidwatch2
