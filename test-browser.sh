@@ -62,7 +62,7 @@ case "$BROWSER" in
 EOF
     ;;
   "firefox")
-    REVERSEHOST=`echo ${HOST} | rev` 
+    REVERSEHOST=`echo ${HOST} | rev`
     sqlite3 "${D}/webappsstore.sqlite" << EOF
         CREATE TABLE webappsstore2 (scope TEXT, key TEXT, value TEXT, secure INTEGER, owner TEXT);
         CREATE UNIQUE INDEX scope_key_index ON webappsstore2(scope, key);
@@ -98,6 +98,8 @@ case "$BROWSER" in
       --vmodule="*media/*=3,*turn*=3" \
       "${URL}" > $LOG_FILE 2>&1 &
     PID=$!
+    # stop CPU hammering
+    renice -n 16 $PID 1>/dev/null 2>&1
   ;;
   "firefox")
     eval $XVFB mozrunner \
@@ -105,6 +107,8 @@ case "$BROWSER" in
       --binary ${BROWSER} \
       --app-arg=${URL} > $LOG_FILE 2>&1 &
     PID=$!
+
+    renice -n 16 $PID 1>/dev/null 2>&1
   ;;
 esac
 
