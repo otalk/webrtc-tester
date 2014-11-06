@@ -87,7 +87,7 @@ fi
 # "eval" below is required by $XVFB containing a quoted argument.
 case "$BROWSER" in
   "google-chrome" | "google-chrome-stable" | "google-chrome-beta" | "google-chrome-unstable" | "chromium-browser")
-    eval $XVFB $BROWSER \
+    eval nice -20 $XVFB $BROWSER \
       --enable-logging=stderr \
       --no-first-run \
       --no-default-browser-check \
@@ -98,17 +98,13 @@ case "$BROWSER" in
       --vmodule="*media/*=3,*turn*=3" \
       "${URL}" > $LOG_FILE 2>&1 &
     PID=$!
-    # stop CPU hammering
-    renice -n 16 $PID 1>/dev/null 2>&1
   ;;
   "firefox")
-    eval $XVFB mozrunner \
+    eval nice -20 $XVFB mozrunner \
       -p ${D} \
       --binary ${BROWSER} \
       --app-arg=${URL} > $LOG_FILE 2>&1 &
     PID=$!
-
-    renice -n 16 $PID 1>/dev/null 2>&1
   ;;
 esac
 

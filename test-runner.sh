@@ -2,7 +2,7 @@
 (
   flock -x -w 10 200 || exit 1
 
-  TIMEOUT="90"
+  TIMEOUT="120"
   DISPLAY=
   HOST=${1:-"beta.talky.io"}
   ROOM="automatedtesting_${RANDOM}"
