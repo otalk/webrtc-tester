@@ -99,20 +99,12 @@ case "$BROWSER" in
       "${URL}" > $LOG_FILE 2>&1 &
     PID=$!
   ;;
-  "google-chrome" | "google-chrome-stable" | "google-chrome-beta" | "google-chrome-unstable")
-    sleep 10; renice -20 -p $(pidof google-chrome)
-  ;;
-    "chromium-browser")
-    sleep 10; renice -20 -p $(pidof chromium-browser)
-  ;;
-
   "firefox")
     eval nice -20 $XVFB mozrunner \
       -p ${D} \
       --binary ${BROWSER} \
       --app-arg=${URL} > $LOG_FILE 2>&1 &
     PID=$!
-    sleep 10; renice -20 -p $(pidof firefox)
   ;;
 esac
 
@@ -131,5 +123,7 @@ if ! grep -q "${COND}" $LOG_FILE; then
   cat $LOG_FILE
   EXIT_CODE=1
 fi
+
+rm -rf /tmp/xvfb-run*
 
 exit $EXIT_CODE
