@@ -79,7 +79,7 @@ touch $LOG_FILE
 
 # setup xvfb
 XVFB="xvfb-run -a -e $LOG_FILE -s '-screen 0 1024x768x24'"
-if [ -n "$DISPLAY" ]; then
+if [ -n $DISPLAY ]; then
   XVFB=""
 fi
 
