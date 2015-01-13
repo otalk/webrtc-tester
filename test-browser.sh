@@ -62,7 +62,7 @@ case "$BROWSER" in
 EOF
     ;;
   "firefox")
-    REVERSEHOST=`echo ${HOST} | rev` 
+    REVERSEHOST=`echo ${HOST} | rev`
     sqlite3 "${D}/webappsstore.sqlite" << EOF
         CREATE TABLE webappsstore2 (scope TEXT, key TEXT, value TEXT, secure INTEGER, owner TEXT);
         CREATE UNIQUE INDEX scope_key_index ON webappsstore2(scope, key);
@@ -87,7 +87,7 @@ fi
 # "eval" below is required by $XVFB containing a quoted argument.
 case "$BROWSER" in
   "google-chrome" | "google-chrome-stable" | "google-chrome-beta" | "google-chrome-unstable" | "chromium-browser")
-    eval $XVFB $BROWSER \
+    eval nice -20 $XVFB $BROWSER \
       --enable-logging=stderr \
       --no-first-run \
       --no-default-browser-check \
@@ -100,7 +100,7 @@ case "$BROWSER" in
     PID=$!
   ;;
   "firefox")
-    eval $XVFB mozrunner \
+    eval nice -20 $XVFB mozrunner \
       -p ${D} \
       --binary ${BROWSER} \
       --app-arg=${URL} > $LOG_FILE 2>&1 &
@@ -123,5 +123,7 @@ if ! grep -q "${COND}" $LOG_FILE; then
   cat $LOG_FILE
   EXIT_CODE=1
 fi
+
+rm -rf /tmp/xvfb-run*
 
 exit $EXIT_CODE

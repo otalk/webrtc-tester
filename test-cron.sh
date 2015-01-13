@@ -1,25 +1,38 @@
 #!/bin/bash
-# Argument 1: host
-if [ -z "$1" ]; then
-    echo "missing 'host' argument (string)"
-    exit 1
-fi
+#
+# this script should be supervised by Runit or the supervisor of your choice
+# test-runner.sh does not tolerate parallel execution on most systems (causes CPU thrashing)
+# crontab would not be able to guarantee serial execution of test-runner.sh
+#
 
-# Argument 2: condition
-if [ -z "$2" ]; then
-    echo "missing 'condition' argument (string)"
-    exit 1
-fi
+SLEEP=15
+IFS=$'\n\t'
+declare -A ITEMS=(
+    ["andyet.talky.io"]="data channel open"
+    ["beta.talky.io"]="P2P connected"
+    ["talky.io"]="P2P connected"
+)
 
-# Run test
-cd /opt/sbin/webrtc-tester/
-TEST=$(./test-runner.sh "$1" "$2")
+test_run () {
+  for host in "${!ITEMS[@]}"; do
+    # give enough time for previous test processes to be killed
+    sleep $SLEEP
+    echo "$host"
+    # run the test
+    TEST=$(/opt/sbin/webrtc-tester/test-runner.sh "$host" "${ITEMS["$host"]}")
+    # A pass produces no output, so test for string for a test fail
+    if [ -n "$TEST" ]; then
+      echo "[alert] $host: WEBRTC TEST FAIL" | tee /opt/sbin/webrtc-tester/test.log
+      echo "$TEST" | tee -a /opt/sbin/webrtc-tester/test.log
+      # Send your alert
+      /opt/sbin/send-alert.sh /opt/sbin/webrtc-tester/test.log
+    fi
+  done
+}
 
-# A pass produces no output, so test for string for a test fail
-if [ -n "$TEST" ]; then
-  echo "[alert] $1: WEBRTC TEST FAIL" | tee /opt/sbin/webrtc-tester/test.log
-  echo "$TEST" | tee -a /opt/sbin/webrtc-tester/test.log
-
-  # Send your alert
-  /opt/sbin/send-alert.sh /opt/sbin/webrtc-tester/test.log
-fi
+while true;
+do
+  # set sleep as needed to increase/decrease frequency of test_run
+  sleep 5
+  test_run
+done

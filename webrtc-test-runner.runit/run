@@ -1,0 +1,3 @@
+#!/bin/bash
+cd /opt/sbin/webrtc-tester
+exec 2>&1 ./test-cron.sh
