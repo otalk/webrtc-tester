@@ -4,7 +4,7 @@
 
   TIMEOUT="200"
   DISPLAY=
-  HOST=${1:-"beta.talky.io"}
+  HOST=${1:-"talky.io"}
   ROOM="automatedtesting_${RANDOM}"
   COND=${2:-"P2P connected"} # talky
   #COND="data channel open" # talky pro
