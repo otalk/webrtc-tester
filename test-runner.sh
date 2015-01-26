@@ -1,7 +1,7 @@
 #!/bin/bash
 TIMEOUT="90"
-DISPLAY=
-HOST="beta.talky.io"
+#DISPLAY=
+HOST="no.such.talky.io"
 ROOM="automatedtesting_${RANDOM}"
 COND="P2P connected" # talky
 #COND="data channel open" # talky pro
@@ -11,14 +11,8 @@ COND="P2P connected" # talky
 
 # make sure we kill any Xvfb instances
 function cleanup() {
-  function xvfb_pids() {
-    ps x -o "%r %p %c" | grep X[v]fb | grep $$ | awk '{print $2}'
-  }
   exec 3>&2
   exec 2>/dev/null
-  while [ ! -z "$(xvfb_pids)" ]; do
-    kill $(xvfb_pids)
-  done
   pkill -HUP -P $pidwatch
   pkill -HUP -P $pidwatch2
   exec 2>&3

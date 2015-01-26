@@ -20,7 +20,7 @@ function browser_pids() {
   "chromium-browser")
     ps axuwww|grep $D|grep c[h]romium-browser|awk '{print $2}'
     ;;
-  "firefox")
+  "firefox" | "firefox-trunk" )
     ps axuwww|grep $D|grep f[i]refox|awk '{print $2}'
     ;;
   esac
@@ -61,7 +61,7 @@ case "$BROWSER" in
         INSERT INTO ItemTable (key, value) VALUES ("skipHaircheck", "true");
 EOF
     ;;
-  "firefox")
+  "firefox" | "firefox-trunk")
     REVERSEHOST=`echo ${HOST} | rev` 
     sqlite3 "${D}/webappsstore.sqlite" << EOF
         CREATE TABLE webappsstore2 (scope TEXT, key TEXT, value TEXT, secure INTEGER, owner TEXT);
@@ -77,17 +77,9 @@ esac
 LOG_FILE="${D}/browser.log"
 touch $LOG_FILE
 
-# setup xvfb
-XVFB="xvfb-run -a -e $LOG_FILE -s '-screen 0 1024x768x24'"
-if [ -n "$DISPLAY" ]; then
-  XVFB=""
-fi
-
-# run xvfb
-# "eval" below is required by $XVFB containing a quoted argument.
 case "$BROWSER" in
   "google-chrome" | "google-chrome-stable" | "google-chrome-beta" | "google-chrome-unstable" | "chromium-browser")
-    eval $XVFB $BROWSER \
+    $BROWSER \
       --enable-logging=stderr \
       --no-first-run \
       --no-default-browser-check \
@@ -99,8 +91,8 @@ case "$BROWSER" in
       "${URL}" > $LOG_FILE 2>&1 &
     PID=$!
   ;;
-  "firefox")
-    eval $XVFB mozrunner \
+  "firefox" | "firefox-trunk")
+    mozrunner \
       -p ${D} \
       --binary ${BROWSER} \
       --app-arg=${URL} > $LOG_FILE 2>&1 &
