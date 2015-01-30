@@ -1,4 +1,11 @@
 #!/bin/bash
+
+# start Xvfb
+# TODO: steal the automagic servernum from xvfb-run
+SERVERNUM=99
+DISPLAY=:$SERVERNUM
+Xvfb $DISPLAY >/dev/null 2>&1 &
+
 # Argument 1: host
 if [ -z "$1" ]; then
     echo "missing 'host' argument (string)"
