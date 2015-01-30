@@ -14,10 +14,10 @@ To run it inside Xvfb, just use `xvfb-run ./test-runner.sh`.
   * mozrunner (via pip/easy\_install)
 
 #Running
-* start Xvfb
-```Xvfb :10``
-* set the DISPLAY variable to the same port as used above
-``export DISPLAY=:10``
+* start Xvfb:
+```Xvfb :10```
+* set the DISPLAY variable to the same port as used above:
+```export DISPLAY=:10```
 * run test-runner as often as you would like
 
 #Recommended reading
