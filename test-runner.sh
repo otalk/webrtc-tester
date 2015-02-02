@@ -37,5 +37,6 @@ if wait $pidwatcher 2>/dev/null; then
   echo "--- timedout"
   cat log1.log
   cat log2.log
+  exit 1
 fi
 # do nothing in the case of success
