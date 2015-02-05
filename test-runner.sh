@@ -1,7 +1,7 @@
 #!/bin/bash
 TIMEOUT="90"
-DISPLAY=
-HOST=${1:-"beta.talky.io"}
+#DISPLAY=
+HOST=${1:-"no.such.talky.io"}
 ROOM="automatedtesting_${RANDOM}"
 COND=${2:-"P2P connected"} # talky
 #COND="data channel open" # talky pro
@@ -9,16 +9,9 @@ COND=${2:-"P2P connected"} # talky
 #COND="onCallActive" # go
 #COND="Data channel opened" # meet
 
-# make sure we kill any Xvfb instances
 function cleanup() {
-  function xvfb_pids() {
-    ps x -o "%r %p %c" | grep X[v]fb | grep $$ | awk '{print $2}'
-  }
   exec 3>&2
   exec 2>/dev/null
-  while [ ! -z "$(xvfb_pids)" ]; do
-    kill $(xvfb_pids)
-  done
   pkill -HUP -P $pidwatch
   pkill -HUP -P $pidwatch2
   exec 2>&3
@@ -44,5 +37,6 @@ if wait $pidwatcher 2>/dev/null; then
   echo "--- timedout"
   cat log1.log
   cat log2.log
+  exit 1
 fi
 # do nothing in the case of success
